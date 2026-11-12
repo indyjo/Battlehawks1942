@@ -1,0 +1,14 @@
+--- a/src/st/bh_text.s
++++ b/src/st/bh_text.s
+@@
+         .org 0x158ec
+-* move.l a5,-6322(a4)
+-        .word 0x294d
+-        .word 0xe74e
++        .ifdef C2P_TIMING
++        bra.w c2p_time_delta
++        .else
++* move.l a5,-6322(a4)
++        .word 0x294d
++        .word 0xe74e
++        .endif

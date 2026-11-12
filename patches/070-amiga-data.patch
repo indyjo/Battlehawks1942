@@ -1,0 +1,6 @@
+--- /dev/null
++++ b/src/amiga/bh_data.s
+@@
++* Amiga bh data hunk. Relocations are listed in the matching .reloc file.
++        .data
++        .incbin "extracted/amiga/hunks/bh/hunk1.data.bin"

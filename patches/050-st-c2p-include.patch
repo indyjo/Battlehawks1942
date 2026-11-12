@@ -1,0 +1,8 @@
+--- a/src/st/bh_text.s
++++ b/src/st/bh_text.s
+@@
+         .org 0x1be80
+         rts
++        .ifdef C2P_TIMING
++        .include "src/st/c2p_timing.s"
++        .endif

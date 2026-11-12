@@ -1,0 +1,13 @@
+--- /dev/null
++++ b/src/st/bh_data.s
+@@
++* Atari ST BH.PRG data section.
++        .data
++        .ifdef AMIGA_PALETTE
++        .incbin "extracted/st/hunks/bh/data.bin", 0, 0xDC2
++        .include "src/st/amiga_palette.s"
++        .org 0xE02
++        .incbin "extracted/st/hunks/bh/data.bin", 0xE02
++        .else
++        .incbin "extracted/st/hunks/bh/data.bin"
++        .endif

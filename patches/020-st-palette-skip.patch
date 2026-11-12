@@ -1,0 +1,11 @@
+--- a/src/st/bh_text.s
++++ b/src/st/bh_text.s
+@@
+         .org 0x6a52
+ * jsr (a0)
+-        .word 0x4e90
++        .ifdef AMIGA_PALETTE
++        .word 0x4e71
++        .else
++        .word 0x4e90
++        .endif

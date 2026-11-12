@@ -1,0 +1,12 @@
+--- a/src/st/bh_text.s
++++ b/src/st/bh_text.s
+@@
+         .org 0x6a48
+ * jsr -32694(a4)
+         .word 0x4eac
+-        .word 0x804a
++        .ifdef AMIGA_PALETTE
++        .word 0x8de4
++        .else
++        .word 0x804a
++        .endif
