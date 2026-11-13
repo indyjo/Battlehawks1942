@@ -1,0 +1,35 @@
+--- a/src/st/bh_text.s
++++ b/src/st/bh_text.s
+@@
+         .org 0x15812
+         .ifdef C2P_TIMING
+         bra.w c2p_time_full
+         .else
++        .ifdef ST_C2P_MOVEP
++        bra.w c2p_movep_full
++        .else
+ * move.l a5,-6322(a4)
+         .word 0x294d
+         .word 0xe74e
+         .endif
++        .endif
+@@
+         .org 0x158ec
+         .ifdef C2P_TIMING
+         bra.w c2p_time_delta
+         .else
++        .ifdef ST_C2P_MOVEP
++        bra.w c2p_movep_delta
++        .else
+ * move.l a5,-6322(a4)
+         .word 0x294d
+         .word 0xe74e
+         .endif
++        .endif
+@@
+         .ifdef C2P_TIMING
+         .include "src/st/c2p_timing.s"
+         .endif
++        .ifdef ST_C2P_MOVEP
++        .include "src/st/c2p_movep.s"
++        .endif

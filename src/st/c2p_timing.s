@@ -26,8 +26,12 @@ c2p_time_full:
         lea c2p_changes(pc),a0
         move.w #-1,(a0)
         movem.l (sp)+,d0-d7/a0-a3/a6
+        .ifdef ST_C2P_MOVEP
+        bra.w c2p_movep_full
+        .else
         move.l a5,-6322(a4)
         jmp 0x15816.l
+        .endif
 
 c2p_time_delta:
         lea c2p_buf0(pc),a0
@@ -54,8 +58,12 @@ c2p_time_delta:
         lea c2p_t0(pc),a0
         move.l d0,(a0)
         movem.l (sp)+,d0-d7/a0-a3/a6
+        .ifdef ST_C2P_MOVEP
+        bra.w c2p_movep_delta
+        .else
         move.l a5,-6322(a4)
         jmp 0x158f0.l
+        .endif
 
 c2p_after:
         movem.l d0-d4/a0-a3,-(sp)

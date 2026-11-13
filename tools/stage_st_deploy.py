@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Assemble the ST sources and stage deploy/st.
 
-The sources are already patched. --amiga-palette and --c2p-timing are
-compile-time flags (--defsym AMIGA_PALETTE and C2P_TIMING), not a choice of
-which patches to install. With neither flag the assembled program matches
-the disk.
+The sources are already patched. --amiga-palette, --c2p-timing and
+--c2p-movep are compile-time flags (--defsym AMIGA_PALETTE, C2P_TIMING
+and ST_C2P_MOVEP), not a choice of which patches to install. With no
+flag the assembled program matches the disk.
 
 An Amiga PAC replaces the ST file only when the bytes are identical. The
 full-screen packs are a different geometry, and the ST row decoder paints them
@@ -67,13 +67,15 @@ def stage_dir(names_from: Path, dest: Path, amiga: dict[str, Path]) -> list[str]
     return lines
 
 
-def build_prg(palette: bool, timing: bool, dest: Path) -> None:
+def build_prg(palette: bool, timing: bool, movep: bool, dest: Path) -> None:
     """Assemble the patched ST sources and splice them into the original header."""
     tag = "st"
     if palette:
         tag += "-amiga"
     if timing:
         tag += "-c2p"
+    if movep:
+        tag += "-movep"
     work = ROOT / "build" / tag
     work.mkdir(parents=True, exist_ok=True)
     flags = ["-m68000", "--register-prefix-optional"]
@@ -81,6 +83,8 @@ def build_prg(palette: bool, timing: bool, dest: Path) -> None:
         flags += ["--defsym", "AMIGA_PALETTE=1"]
     if timing:
         flags += ["--defsym", "C2P_TIMING=1"]
+    if movep:
+        flags += ["--defsym", "ST_C2P_MOVEP=1"]
     assembler = str(BIN / "m68k-atari-mintelf-as")
     copier = str(BIN / "m68k-atari-mintelf-objcopy")
     for name, section in (("bh_text", ".text"), ("bh_data", ".data")):
@@ -105,10 +109,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--amiga-palette", action="store_true", help="define AMIGA_PALETTE for this build")
     parser.add_argument("--c2p-timing", action="store_true", help="define C2P_TIMING for this build")
+    parser.add_argument("--c2p-movep", action="store_true", help="define ST_C2P_MOVEP for this build")
     parser.add_argument("--prg-out", type=Path, help="write only BH.PRG, and do not restage the tree")
     args = parser.parse_args()
     if args.prg_out:
-        build_prg(args.amiga_palette, args.c2p_timing, args.prg_out)
+        build_prg(args.amiga_palette, args.c2p_timing, args.c2p_movep, args.prg_out)
         if OUT.is_dir():
             shutil.copy2(args.prg_out, OUT / "BH.PRG")
         return
@@ -116,12 +121,14 @@ def main() -> None:
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
     amiga = amiga_pacs()
-    build_prg(args.amiga_palette, args.c2p_timing, OUT / "BH.PRG")
+    build_prg(args.amiga_palette, args.c2p_timing, args.c2p_movep, OUT / "BH.PRG")
     flags = []
     if args.amiga_palette:
         flags.append("AMIGA_PALETTE")
     if args.c2p_timing:
         flags.append("C2P_TIMING")
+    if args.c2p_movep:
+        flags.append("ST_C2P_MOVEP")
     prg_note = ",".join(flags) if flags else "original"
     lines = [f"BH.PRG {(OUT / 'BH.PRG').stat().st_size} {prg_note}"]
     lines += stage_dir(ST_FILES / "disk1" / "files" / "SDAT", OUT / "SDAT", amiga)

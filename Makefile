@@ -4,6 +4,7 @@
 # make prg                           assemble the patched sources and splice BH.PRG
 # make AMIGA_PALETTE=1 prg           define AMIGA_PALETTE for that assembly
 # make C2P_TIMING=1 prg              define C2P_TIMING for that assembly
+# make ST_C2P_MOVEP=1 prg            lookup-table movep converter
 # make prg HATARI_BH=/path/to/dir    also copy BH.PRG into that directory
 AS      := $(HOME)/opt/cross-mint/bin/m68k-atari-mintelf-as
 OBJCOPY := $(HOME)/opt/cross-mint/bin/m68k-atari-mintelf-objcopy
@@ -20,6 +21,14 @@ ifeq ($(STBUILD),build/st)
 STBUILD := build/st-c2p
 else
 STBUILD := build/st-amiga-c2p
+endif
+endif
+ifdef ST_C2P_MOVEP
+PRGFLAGS += --c2p-movep
+ifeq ($(STBUILD),build/st)
+STBUILD := build/st-movep
+else
+STBUILD := $(STBUILD)-movep
 endif
 endif
 
@@ -58,7 +67,7 @@ build/st/bh_data.bin: build/st/bh_data.o
 	$(OBJCOPY) -O binary -j .data $< $@
 
 # The stager assembles the already-patched sources. Flags only define symbols.
-$(STBUILD)/BH.PRG: src/st/bh_text.s src/st/bh_data.s src/st/c2p_timing.s src/st/amiga_palette.s tools/stage_st_deploy.py tools/splice_prg.py extracted/st/disk1/files/BH.PRG
+$(STBUILD)/BH.PRG: src/st/bh_text.s src/st/bh_data.s src/st/c2p_timing.s src/st/c2p_movep.s src/st/amiga_palette.s tools/stage_st_deploy.py tools/splice_prg.py extracted/st/disk1/files/BH.PRG
 	python3 tools/stage_st_deploy.py $(PRGFLAGS) --prg-out $@
 
 prepare:
